@@ -67,7 +67,7 @@ Rules we followed while keeping this log:
 | **Prompt intent** | "Make the AI prompt log clearer and more complete: state the purpose and the human check for every entry, replace the placeholder declaration, and explain honestly how Git contributions work across the team." |
 | **Purpose** | Meet the assignment's AI-disclosure requirement with a log a marker can actually audit. |
 | **Human verification** | The facts in this file were checked against the repository before writing: `git log` for the real commit history and authors, and `README.md` / `PLAN.md` for the member list and ownership split. A second agent reviewed the result, and a team member read the final file. |
-| **Scope limit** | This pass changed documentation only — no application code, no data and no deployment configuration was touched. The one repository action taken, at the team's explicit request, was creating and pushing the four empty member branches listed below; no commit was authored and no deployment was run. |
+| **Scope limit** | This pass changed documentation only — no application code, no data and no deployment configuration was touched. The one repository action taken, at the team's explicit request, was creating and pushing the four member branches listed below; no commit was authored by the AI and no deployment was run. |
 
 ---
 
@@ -123,9 +123,13 @@ the distinction matters:
   result; the agent did not choose the account or publish without approval.
 - **One thing an agent did do:** during the pass described in entry 5, and at the
   team's explicit request, the agent created the four member branches listed
-  above and pushed them to the remote. Those branches are empty pointers at the
-  existing `main` commit — they contain no new commits, add no content and
-  change no authorship. They exist so each member has a branch waiting for them.
+  above and pushed them to the remote. Creating a branch adds no commit and
+  changes no authorship — the branches exist so each member has somewhere to
+  commit their own work. The `m1`, `m2` and `m3` branches still sit exactly on
+  the `main` commit with nothing added. The `m4` branch carries the two
+  documentation commits that produced this file; both were authored by the m4
+  team member from their own machine under their own Git identity, and both
+  name the AI assistant in a `Co-authored-by` trailer rather than as the author.
 
 The DevTeam coordination used in entries 4 and 5 assigns and reviews work between
 agents; it does not itself produce commits.
@@ -151,7 +155,7 @@ follows:
 
 No AI tool authored a commit. Codex performed the Cloudflare Pages deployment
 only through human-authorized account context and at the team's instruction. The
-only Git action taken by an agent was creating the four empty member branches
+only Git action taken by an agent was creating the four member branches
 described above, at our request. All AI output was reviewed by a human before it
 was kept. Every member can explain the sections attributed to them in
 `README.md`. No pre-built or previously submitted project was reused.
