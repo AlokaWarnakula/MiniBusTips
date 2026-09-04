@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
 import type { Route } from "../lib/routes";
-import { STATUS_META, liveStatus, type Report } from "../lib/reports";
+import { STATUS_META, liveStatus, timeAgo, type Report } from "../lib/reports";
 
 export default function RouteGrid({ routes }: { routes: Route[] }) {
   const [byRoute, setByRoute] = useState<Record<string, Report[]>>({});
   const [loading, setLoading] = useState(true);
+  const [updatedAt, setUpdatedAt] = useState<number | null>(null);
+  const [nonce, setNonce] = useState(0);
+  const [nowTick, setNowTick] = useState(Date.now());
 
   useEffect(() => {
     let alive = true;
@@ -18,6 +21,7 @@ export default function RouteGrid({ routes }: { routes: Route[] }) {
           (map[r.route_number] ??= []).push(r);
         }
         setByRoute(map);
+        setUpdatedAt(Date.now());
       } catch {
         /* leave dots grey */
       } finally {
@@ -30,9 +34,25 @@ export default function RouteGrid({ routes }: { routes: Route[] }) {
       alive = false;
       clearInterval(t);
     };
+  }, [nonce]);
+
+  useEffect(() => {
+    const t = setInterval(() => setNowTick(Date.now()), 5000);
+    return () => clearInterval(t);
   }, []);
 
   return (
+    <>
+    <div className="mb-2 flex items-center gap-2 text-xs text-slate-400">
+      <span>{updatedAt ? `Updated ${timeAgo(updatedAt, nowTick)}` : "Loading…"}</span>
+      <button
+        type="button"
+        onClick={() => setNonce((n) => n + 1)}
+        className="rounded-md border border-amber-200 px-2 py-0.5 text-slate-600 hover:bg-amber-50"
+      >
+        Refresh
+      </button>
+    </div>
     <ul className="grid gap-3 sm:grid-cols-2">
       {routes.map((r) => {
         const live = liveStatus(byRoute[r.number] ?? []);
@@ -62,5 +82,6 @@ export default function RouteGrid({ routes }: { routes: Route[] }) {
         );
       })}
     </ul>
+    </>
   );
 }
