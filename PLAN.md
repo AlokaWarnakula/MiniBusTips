@@ -90,16 +90,18 @@ time, city routes 19 km/h.
 
 ## 7. Minimum-requirements checklist (tick on the DEPLOYED link, incognito)
 
-- [ ] 1. Landing page — `/`
-- [ ] 2. Problem shown in-app — `/` intro + `/about`
-- [ ] 3. Two working features — route/fare finder + live reports
-- [ ] 4. Input form — report form
-- [ ] 5. Validation + friendly errors — empty route/status, bad plate, long note
-- [ ] 6. Display/search/filter/calculate — route search, feed filter, fare calc
-- [ ] 7. Responsive desktop + mobile
-- [ ] 8. Navigation — header: Find Route / Live Reports / About
-- [ ] 9. Sample data — routes.json + seeded reports
-- [ ] 10. Clear SL value — shown in `/about` and the demo
+- [x] 1. Landing page — `/`
+- [x] 2. Problem shown in-app — `/` intro + `/about`
+- [x] 3. Two working features — route/fare finder + live reports
+- [x] 4. Input form — report form
+- [x] 5. Validation + friendly errors — verified live: empty route/status, bad plate, long note, non-JSON all return friendly 422/400
+- [x] 6. Display/search/filter/calculate — route search, feed filter, fare calc
+- [x] 7. Responsive desktop + mobile
+- [x] 8. Navigation — header: Find Route / Live Reports / About
+- [x] 9. Sample data — routes.json (8 routes) + 35 seeded reports
+- [x] 10. Clear SL value — shown in `/about` and the demo
+
+Deployed: https://f1df5df4.minihack-bus.pages.dev · `/api/health` → `{"ok":true,"reports":35}`
 
 ## 8. Team & ownership
 

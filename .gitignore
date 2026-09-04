@@ -6,3 +6,10 @@ dist/
 .env
 *.log
 .DS_Store
+
+# leftover npm/babel backup artifacts — not part of the project
+*.incomplete-backup*
+node_modules.incomplete-backup/
+
+# Local DevTeam working notes and generated code-graph artifacts
+knowledge/

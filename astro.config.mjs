@@ -7,5 +7,11 @@ export default defineConfig({
   output: "server",
   adapter: cloudflare({ platformProxy: { enabled: true } }),
   integrations: [react()],
-  vite: { plugins: [tailwindcss()] },
+  vite: {
+    plugins: [tailwindcss()],
+    resolve: {
+      // React's edge renderer avoids Node-only MessageChannel usage in Workers.
+      alias: { "react-dom/server": "react-dom/server.edge" },
+    },
+  },
 });
