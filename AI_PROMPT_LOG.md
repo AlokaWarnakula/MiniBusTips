@@ -57,7 +57,7 @@ Rules we followed while keeping this log:
 | **Prompt intent** | "Harden the MVP before the deadline: verify everything works, fix code-quality problems, add a small feature that helps riders tell apart several buses on the same route, and deploy to Cloudflare." |
 | **Purpose** | Turn a working prototype into something safe to demo on a public link. |
 | **Human verification** | The work was split into separate assignments and **each agent reviewed the other's changes**, with a team member reading the diff before it was merged. Verified outcomes: a Cloudflare Sessions deploy blocker fixed; the report note limit aligned at 140 characters on both client and server; highway speed moved out of hardcoded logic into the route data; a real 404 returned for an unknown route instead of a silent redirect; the plate regex widened to accept province-prefixed plates; "buses reported recently" plate chips plus an "updated N seconds ago" and manual Refresh control added. The deployed link's `/api/health` endpoint was called and answered `{"ok":true,...}`. |
-| **Scope limit** | Deployment credentials were entered by a human. No AI agent was given account access, and no agent pushed or deployed on its own. |
+| **Scope limit** | A human supplied and authorized the deployment account context. Codex ran the Cloudflare Pages deployment at the team's instruction; it did not choose the account, publish without approval, or author a Git commit. The team reviewed the deployed result. |
 
 ## 5 · Documentation and audit-trail pass (this file)
 
@@ -118,8 +118,9 @@ the distinction matters:
 
 - **No AI agent has authored a commit in this repository.** Every commit in the
   history was made by a human running `git` on their own machine.
-- **No AI agent deployed.** Deployment was run by a human with their own
-  Cloudflare credentials.
+- **Codex performed the Pages deployment at the team's instruction.** A human
+  supplied and authorized the Cloudflare account context and reviewed the
+  result; the agent did not choose the account or publish without approval.
 - **One thing an agent did do:** during the pass described in entry 5, and at the
   team's explicit request, the agent created the four member branches listed
   above and pushed them to the remote. Those branches are empty pointers at the
@@ -148,9 +149,9 @@ follows:
 - **Claude Code (Claude Opus 5)** — the documentation and audit-trail pass that
   produced this file, reviewed by OpenAI Codex and by a team member.
 
-No AI tool was given account credentials, no AI tool deployed the application,
-and no AI tool authored a commit. The only repository action taken by an agent
-was creating the four empty member branches described above, at our request. All
-AI output was reviewed by a human before it was kept. Every member can explain
-the sections attributed to them in `README.md`. No pre-built or previously
-submitted project was reused.
+No AI tool authored a commit. Codex performed the Cloudflare Pages deployment
+only through human-authorized account context and at the team's instruction. The
+only Git action taken by an agent was creating the four empty member branches
+described above, at our request. All AI output was reviewed by a human before it
+was kept. Every member can explain the sections attributed to them in
+`README.md`. No pre-built or previously submitted project was reused.
