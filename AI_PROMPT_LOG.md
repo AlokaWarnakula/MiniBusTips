@@ -1,17 +1,156 @@
 # AI Prompt Log
 
-For each significant AI use: tool, exact prompt, purpose, and how we checked or
-changed the output. Redact passwords, API keys and personal data.
+**Module:** SE3090 Assignment 2 — Mini Hackathon
+**Project:** Kohomada Bus? — Sri Lanka bus route & live status
+**Deployed app:** https://f1df5df4.minihack-bus.pages.dev
 
-| # | Tool | Prompt (summary / exact) | Purpose | How we checked / changed it |
-|---|------|--------------------------|---------|-----------------------------|
-| 1 | Claude Code (Sonnet 5) | "Scaffold an Astro + React + Cloudflare Pages + D1 app for a Sri Lankan bus route finder + crowd-sourced live status reports. No login. 3 screens." | Project scaffold, stack setup | Reviewed every generated file; confirmed the D1 binding, ran it locally, checked the 3 pages render. |
-| 2 | Claude Code (Sonnet 5) | (part of #1) fare + travel-time helper `src/lib/routes.ts` | Fare calculation logic | Checked the Rs. 30 minimum + stage rate against real bus fares; adjusted stage length to 1.6 km. |
-| 3 | Claude Code (Sonnet 5) | (part of #1) `validateReport` shared validation + `ReportForm` errors | Input validation with friendly messages | Tested empty route, empty status, bad plate, long note; confirmed messages show. |
-| 4 | Claude Code (Sonnet 5) + OpenAI Codex (GPT-5.6), via DevTeam | "Improve/harden the MVP: check everything works, fix code quality, add a small feature about buses on the same route, deploy to Cloudflare before the deadline." | Pre-deploy hardening + deploy | Split into planned assignments with cross-review: fixed a Cloudflare Sessions deploy blocker, aligned the note length limit (140), made highway speed a data field, returned a real 404 for unknown routes, widened the plate regex for province-prefixed plates, added "buses reported recently" chips + a feed "last updated / refresh" control. Every change reviewed by the other agent and verified against the deployed link's `/api/health`. |
+This file is the team's honest audit trail of every significant use of an AI
+coding tool on this project. For each use we record: the tool, what we asked for
+(prompt intent), why we asked, how a human checked the result, and what the AI
+was **not** allowed to decide.
+
+Rules we followed while keeping this log:
+
+- No passwords, API keys, database IDs or personal data are recorded here.
+- Nothing is logged that did not actually happen. No invented prompts, no
+  invented checks, no invented commits.
+- AI output was never merged unread. Every entry below names a human check.
+- The team can explain any line of the delivered code without the AI present.
+
+---
+
+## 1 · Project scaffold (Astro + React + Cloudflare Pages + D1)
+
+| | |
+|---|---|
+| **Tool** | Claude Code (Claude Sonnet 5) |
+| **Prompt intent** | "Scaffold an Astro + React + Cloudflare Pages + D1 app for a Sri Lankan bus route finder plus crowd-sourced live status reports. No login. Three screens." |
+| **Purpose** | Get a working project skeleton and stack wiring quickly, so the limited build time went into the two graded features rather than boilerplate. |
+| **Human verification** | We read every generated file before keeping it. We confirmed the D1 binding resolves, ran the app locally, and checked that all three pages render. |
+| **Scope limit** | The AI chose no product requirements. The problem, the two features and the screen list came from us and from the assignment specification. |
+
+## 2 · Fare and travel-time helper (`src/lib/routes.ts`)
+
+| | |
+|---|---|
+| **Tool** | Claude Code (Claude Sonnet 5) — continuation of #1 |
+| **Prompt intent** | Ask for a fare and travel-time helper driven by the route data file. |
+| **Purpose** | Implement requirement 6 (calculate), so a rider can price a segment before boarding. |
+| **Human verification** | We compared the generated formula against real Sri Lankan bus fares, then **changed it ourselves**: we kept the Rs. 30 minimum and set the stage length to 1.6 km at roughly Rs. 8 per stage. |
+| **Scope limit** | The fare rules are ours. The AI wrote the arithmetic; it did not decide the rates, and the result is shown in the UI as an estimate, not an official fare. |
+
+## 3 · Shared input validation (`validateReport` + `ReportForm` errors)
+
+| | |
+|---|---|
+| **Tool** | Claude Code (Claude Sonnet 5) — continuation of #1 |
+| **Prompt intent** | Ask for one shared validation function used by both the API route and the form, returning friendly per-field messages instead of raw errors. |
+| **Purpose** | Requirements 4 and 5 — an input form with validation and clear error messages. |
+| **Human verification** | We manually submitted an empty route, an empty status, a malformed number plate and an over-length note, and confirmed the correct message appears on each field. |
+| **Scope limit** | The wording of the user-facing messages was reviewed and edited by us so it reads naturally to a Sri Lankan rider. |
+
+## 4 · Pre-deploy hardening pass (two AI agents, cross-reviewed)
+
+| | |
+|---|---|
+| **Tool** | Claude Code (Claude Sonnet 5) **and** OpenAI Codex (GPT-5.6), coordinated locally through the DevTeam MCP server |
+| **Prompt intent** | "Harden the MVP before the deadline: verify everything works, fix code-quality problems, add a small feature that helps riders tell apart several buses on the same route, and deploy to Cloudflare." |
+| **Purpose** | Turn a working prototype into something safe to demo on a public link. |
+| **Human verification** | The work was split into separate assignments and **each agent reviewed the other's changes**, with a team member reading the diff before it was merged. Verified outcomes: a Cloudflare Sessions deploy blocker fixed; the report note limit aligned at 140 characters on both client and server; highway speed moved out of hardcoded logic into the route data; a real 404 returned for an unknown route instead of a silent redirect; the plate regex widened to accept province-prefixed plates; "buses reported recently" plate chips plus an "updated N seconds ago" and manual Refresh control added. The deployed link's `/api/health` endpoint was called and answered `{"ok":true,...}`. |
+| **Scope limit** | Deployment credentials were entered by a human. No AI agent was given account access, and no agent pushed or deployed on its own. |
+
+## 5 · Documentation and audit-trail pass (this file)
+
+| | |
+|---|---|
+| **Tool** | Claude Code (Claude Opus 5), with OpenAI Codex as independent reviewer, coordinated through DevTeam |
+| **Prompt intent** | "Make the AI prompt log clearer and more complete: state the purpose and the human check for every entry, replace the placeholder declaration, and explain honestly how Git contributions work across the team." |
+| **Purpose** | Meet the assignment's AI-disclosure requirement with a log a marker can actually audit. |
+| **Human verification** | The facts in this file were checked against the repository before writing: `git log` for the real commit history and authors, and `README.md` / `PLAN.md` for the member list and ownership split. A second agent reviewed the result, and a team member read the final file. |
+| **Scope limit** | This pass changed documentation only — no application code, no data and no deployment configuration was touched. The one repository action taken, at the team's explicit request, was creating and pushing the four empty member branches listed below; no commit was authored and no deployment was run. |
+
+---
+
+## Git collaboration and authorship
+
+A marker can read our commit history, so it has to be truthful.
+
+**Current state of the history (checked, not assumed).** Every commit on `main`
+so far was authored by `it24101147`, who also did the merges and the deployment.
+The other members' contributions are recorded in the tables in `README.md` and
+`PLAN.md`, and are not yet reflected in Git authorship.
+
+**How the remaining members add their work — the only correct way.** One branch
+per member already exists on the remote, all four branched from the same commit
+on `main`:
+
+| Branch | Member | Area |
+|---|---|---|
+| `feature/m1-design-about-route-data` | it24100509 | Problem & solution design, `/about`, route data |
+| `feature/m2-ui-shell-responsive` | it24102629 | UI shell, layout, navigation, responsive pass |
+| `feature/m3-route-search-fare` | it24101027 | Route search + fare calculator |
+| `feature/m4-reports-d1-deploy` | it24101147 | Reports API + form + feed, D1, deployment |
+
+Each member checks out their own branch on their own machine and commits **as
+themselves**:
+
+```bash
+git config user.name  "Member Name"
+git config user.email "member@example.com"
+git checkout feature/m2-ui-shell-responsive
+git commit -m "feat(ui): what they built"
+git push
+```
+
+Then open a pull request into `main`, as the existing `feature/*` and `chore/*`
+branches in this repository already do.
+
+**What we deliberately did not do.** Git makes it technically possible for one
+person to forge another person's commit — `git commit --author="Someone Else"`,
+or rewriting history to re-label existing commits. We did not do this. It puts a
+name on work that person did not write, which is a misrepresentation of
+authorship rather than a shortcut. Where two people genuinely worked on the same
+change together, the honest tool is a `Co-authored-by:` trailer added by the
+person actually making the commit, with the other person's agreement.
+
+**What the AI agents did and did not do in Git.** Being precise here, because
+the distinction matters:
+
+- **No AI agent has authored a commit in this repository.** Every commit in the
+  history was made by a human running `git` on their own machine.
+- **No AI agent deployed.** Deployment was run by a human with their own
+  Cloudflare credentials.
+- **One thing an agent did do:** during the pass described in entry 5, and at the
+  team's explicit request, the agent created the four member branches listed
+  above and pushed them to the remote. Those branches are empty pointers at the
+  existing `main` commit — they contain no new commits, add no content and
+  change no authorship. They exist so each member has a branch waiting for them.
+
+The DevTeam coordination used in entries 4 and 5 assigns and reviews work between
+agents; it does not itself produce commits.
+
+---
 
 ## Declaration
 
-_TODO: one line per tool, e.g._
-"Claude Code — scaffolded the app and wrote the initial components; we reviewed
-all files, tuned the fare formula and status aggregation, and can explain the code."
+We declare that AI tools were used on this project as follows, and only as
+follows:
+
+- **Claude Code (Claude Sonnet 5)** — scaffolded the Astro + Cloudflare project
+  and wrote the first version of the route data model, the fare logic, the
+  reports API route and the React components. We reviewed every file, changed
+  the fare formula and the status-aggregation rules ourselves, and can explain
+  the code.
+- **Claude Code (Sonnet 5) with OpenAI Codex (GPT-5.6)** — a coordinated
+  pre-deployment hardening pass in which each agent reviewed the other's
+  changes, listed in entry 4 above. All changes were read by a team member
+  before merging.
+- **Claude Code (Claude Opus 5)** — the documentation and audit-trail pass that
+  produced this file, reviewed by OpenAI Codex and by a team member.
+
+No AI tool was given account credentials, no AI tool deployed the application,
+and no AI tool authored a commit. The only repository action taken by an agent
+was creating the four empty member branches described above, at our request. All
+AI output was reviewed by a human before it was kept. Every member can explain
+the sections attributed to them in `README.md`. No pre-built or previously
+submitted project was reused.
