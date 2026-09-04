@@ -2,7 +2,7 @@
 
 **SE3090 Assignment 2 — Mini Hackathon** · Build for Sri Lanka
 
-- **Deployed app:** _TODO paste Cloudflare Pages URL_
+- **Deployed app:** https://f1df5df4.minihack-bus.pages.dev
 - **Demo video:** _TODO paste link_
 - **Group ID:** _TODO_
 
@@ -32,6 +32,9 @@ A no-login web app with two features:
 - Crowd-sourced live reports with shared D1 storage and 15s auto-refresh
 - Aggregated live status per route (most-reported status, severity tie-break)
 - Live status dots on the home route list
+- "Buses reported recently" — plate chips per route, so riders can tell apart the
+  several buses that run the same route
+- "Updated N seconds ago" + a manual Refresh button on every live feed
 - Report form with input validation and friendly error messages
 - Route filter + status filter chips on the reports feed
 - "Looks wrong" community flagging — 3 flags hides a report (no login needed)
@@ -56,6 +59,8 @@ A no-login web app with two features:
 
 - **Astro 5** (SSR) + **React 19** islands
 - **Cloudflare Pages** (hosting) + **Cloudflare D1** (SQLite) for reports
+- **Cloudflare KV** — `SESSION` binding required by the Astro Cloudflare adapter
+  (the app itself is no-login / no-session)
 - **Tailwind CSS 4**
 - **TypeScript**
 - **Wrangler** for D1 + deploy
@@ -66,7 +71,12 @@ A no-login web app with two features:
   route data model, fare logic, API route and React components. We reviewed every
   file, adjusted the fare formula and status-aggregation rules, and can explain
   the code.
-- _TODO add any other tool (e.g. ChatGPT for sample stop data) — one line each._
+- **Claude Code (Sonnet 5) + OpenAI Codex (GPT-5.6)** — a coordinated hardening pass
+  before deployment: fixed a Cloudflare Sessions deploy blocker, aligned the report
+  note limit, made highway speed a data field, returned a real 404 for unknown
+  routes, widened the plate validation, and added the "recent buses" chips and feed
+  refresh control. Every change was cross-reviewed by the other agent and verified
+  against the deployed link.
 
 See `AI_PROMPT_LOG.md` for the full prompt log.
 
@@ -74,10 +84,10 @@ See `AI_PROMPT_LOG.md` for the full prompt log.
 
 | Member | Student ID | Contribution |
 |---|---|---|
-| _TODO_ | _TODO_ | Problem & solution design, `/about`, route data |
-| _TODO_ | _TODO_ | UI shell, layout, navigation, responsive pass |
-| _TODO_ | _TODO_ | Route search + fare calculator |
-| _TODO_ | _TODO_ | Reports API + form + feed, D1, deployment |
+| m1 | it24100509 | Problem & solution design, `/about`, route data |
+| m2 | it24102629 | UI shell, layout, navigation, responsive pass |
+| m3 | it24101027 | Route search + fare calculator |
+| m4 | it24101147 | Reports API + form + feed, D1, deployment |
 
 ## Run locally
 

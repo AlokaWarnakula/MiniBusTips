@@ -8,7 +8,7 @@ changed the output. Redact passwords, API keys and personal data.
 | 1 | Claude Code (Sonnet 5) | "Scaffold an Astro + React + Cloudflare Pages + D1 app for a Sri Lankan bus route finder + crowd-sourced live status reports. No login. 3 screens." | Project scaffold, stack setup | Reviewed every generated file; confirmed the D1 binding, ran it locally, checked the 3 pages render. |
 | 2 | Claude Code (Sonnet 5) | (part of #1) fare + travel-time helper `src/lib/routes.ts` | Fare calculation logic | Checked the Rs. 30 minimum + stage rate against real bus fares; adjusted stage length to 1.6 km. |
 | 3 | Claude Code (Sonnet 5) | (part of #1) `validateReport` shared validation + `ReportForm` errors | Input validation with friendly messages | Tested empty route, empty status, bad plate, long note; confirmed messages show. |
-| 4 | _TODO_ | _TODO_ | _TODO_ | _TODO_ |
+| 4 | Claude Code (Sonnet 5) + OpenAI Codex (GPT-5.6), via DevTeam | "Improve/harden the MVP: check everything works, fix code quality, add a small feature about buses on the same route, deploy to Cloudflare before the deadline." | Pre-deploy hardening + deploy | Split into planned assignments with cross-review: fixed a Cloudflare Sessions deploy blocker, aligned the note length limit (140), made highway speed a data field, returned a real 404 for unknown routes, widened the plate regex for province-prefixed plates, added "buses reported recently" chips + a feed "last updated / refresh" control. Every change reviewed by the other agent and verified against the deployed link's `/api/health`. |
 
 ## Declaration
 
