@@ -126,10 +126,10 @@ the distinction matters:
   above and pushed them to the remote. Creating a branch adds no commit and
   changes no authorship — the branches exist so each member has somewhere to
   commit their own work. The `m1`, `m2` and `m3` branches still sit exactly on
-  the `main` commit with nothing added. The `m4` branch carries the two
-  documentation commits that produced this file; both were authored by the m4
-  team member from their own machine under their own Git identity, and both
-  name the AI assistant in a `Co-authored-by` trailer rather than as the author.
+  the `main` commit with nothing added. The `m4` branch carries the
+  documentation commits that produced this file; they were authored by the m4
+  team member from their own machine under their own Git identity, and each
+  names the AI assistant in a `Co-authored-by` trailer rather than as the author.
 
 The DevTeam coordination used in entries 4 and 5 assigns and reviews work between
 agents; it does not itself produce commits.
