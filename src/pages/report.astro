@@ -1,0 +1,19 @@
+---
+import Layout from "../layouts/Layout.astro";
+import ReportsPage from "../components/ReportsPage.tsx";
+import { ROUTES } from "../lib/routes";
+export const prerender = false;
+
+const defaultRoute = Astro.url.searchParams.get("route") ?? "";
+---
+
+<Layout title="Live bus reports · Kohomada Bus?">
+  <section class="mb-6 rounded-3xl bg-slate-900 px-5 py-6 text-white sm:px-7">
+  <p class="mb-2 text-xs font-bold uppercase tracking-[.18em] text-amber-300">Community updates</p>
+  <h1 class="text-3xl font-extrabold mb-1">Live bus reports</h1>
+  <p class="text-sm leading-relaxed text-slate-300">
+    Riders share what they see right now. Reports fade from the route status after 2 hours.
+  </p>
+  </section>
+  <ReportsPage client:load routes={ROUTES} defaultRoute={defaultRoute} />
+</Layout>

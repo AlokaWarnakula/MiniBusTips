@@ -1,0 +1,30 @@
+{
+  "name": "minihack-bus",
+  "type": "module",
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "wrangler pages dev ./dist",
+    "deploy": "astro build && wrangler pages deploy ./dist",
+    "db:local": "wrangler d1 execute minihack-bus --local --file=./schema.sql",
+    "db:remote": "wrangler d1 execute minihack-bus --remote --file=./schema.sql",
+    "seed:local": "wrangler d1 execute minihack-bus --local --file=./seed.sql",
+    "seed:remote": "wrangler d1 execute minihack-bus --remote --file=./seed.sql"
+  },
+  "dependencies": {
+    "@astrojs/cloudflare": "^12.5.0",
+    "@astrojs/react": "^4.2.3",
+    "astro": "^5.6.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.4",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "tailwindcss": "^4.1.4",
+    "typescript": "^5.8.3",
+    "wrangler": "^4.14.0"
+  }
+}

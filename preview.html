@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Kohomada Bus? — static frontend preview</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { background:#f6f7f9; color:#111827; }
+  .view { display:none; }
+  .view.active { display:block; }
+</style>
+</head>
+<body class="min-h-screen flex flex-col">
+<!--
+  STANDALONE PREVIEW — not the real app.
+  This single file mimics the Astro + React frontend so you can see the UI
+  without running Cloudflare D1. Route data is copied from src/data/routes.json,
+  reports are mock seed data, and the fare/status logic is ported from
+  src/lib/routes.ts and src/lib/reports.ts.
+  To run the REAL app: npm install && npm run db:local && npm run seed:local && npm run dev
+-->
+
+<header class="bg-white border-b border-gray-200 sticky top-0 z-10">
+  <div class="mx-auto max-w-3xl px-4 flex items-center justify-between h-14">
+    <a href="#" data-nav="home" class="font-bold text-lg tracking-tight">🚌 Kohomada&nbsp;Bus?</a>
+    <nav class="flex gap-1 text-sm" id="nav"></nav>
+  </div>
+</header>
+
+<main class="mx-auto w-full max-w-3xl px-4 py-6 flex-1">
+  <!-- HOME -->
+  <section id="view-home" class="view active">
+    <div class="mb-6">
+      <h1 class="text-2xl font-bold">Which bus, what fare — and is it running?</h1>
+      <p class="mt-2 text-gray-600 text-sm leading-relaxed">
+        Sri Lankan bus passengers have no official real-time information. You wait at the
+        halt with no idea whether the route is delayed, packed, or not running today.
+        <strong>Kohomada Bus?</strong> lets riders check routes and fares, and share the
+        live status of a route so the next passenger knows before they leave home.
+      </p>
+    </div>
+
+    <div class="bg-white rounded-xl border border-gray-200 p-4">
+      <div class="flex gap-2 mb-4">
+        <button data-searchtab="number" class="flex-1 py-2 text-sm font-medium rounded-md bg-gray-900 text-white">By route number</button>
+        <button data-searchtab="stops" class="flex-1 py-2 text-sm font-medium rounded-md bg-gray-100 text-gray-600">By start &amp; destination</button>
+      </div>
+      <div id="search-number" class="space-y-3">
+        <label class="block text-sm font-medium text-gray-700">Bus route</label>
+        <select id="route-select" class="w-full border border-gray-300 rounded-md px-3 py-2 bg-white"></select>
+        <button id="view-route-btn" class="w-full bg-gray-900 text-white rounded-md py-2 font-medium">View route</button>
+      </div>
+      <div id="search-stops" class="space-y-3 hidden">
+        <div class="grid sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">From</label>
+            <input id="from-stop" list="stops" placeholder="e.g. Nugegoda" class="w-full border border-gray-300 rounded-md px-3 py-2" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">To</label>
+            <input id="to-stop" list="stops" placeholder="e.g. Pettah" class="w-full border border-gray-300 rounded-md px-3 py-2" />
+          </div>
+        </div>
+        <datalist id="stops"></datalist>
+        <ul id="stop-matches" class="space-y-2"></ul>
+      </div>
+    </div>
+
+    <div class="mt-8">
+      <h2 class="font-semibold mb-1">All routes (<span id="route-count"></span>)</h2>
+      <p class="text-xs text-gray-500 mb-3">Live status from rider reports in the last 2 hours.</p>
+      <ul id="route-grid" class="grid sm:grid-cols-2 gap-2"></ul>
+    </div>
+  </section>
+
+  <!-- ROUTE DETAIL -->
+  <section id="view-route" class="view">
+    <a href="#" data-nav="home" class="text-sm text-gray-500">&larr; All routes</a>
+    <header class="mt-2 mb-5">
+      <h1 id="rd-title" class="text-2xl font-bold"></h1>
+      <p id="rd-sub" class="text-sm text-gray-500"></p>
+    </header>
+    <div class="grid md:grid-cols-2 gap-6">
+      <section>
+        <h2 class="font-semibold mb-3">Stops</h2>
+        <ol id="rd-stops" class="relative border-l-2 border-gray-200 ml-2"></ol>
+      </section>
+      <div class="space-y-6">
+        <div class="bg-white rounded-xl border border-gray-200 p-4">
+          <h2 class="font-semibold mb-3">Estimate the fare</h2>
+          <div class="grid sm:grid-cols-2 gap-3">
+            <label class="text-sm">
+              <span class="block font-medium text-gray-700 mb-1">Boarding at</span>
+              <select id="fare-from" class="w-full border border-gray-300 rounded-md px-3 py-2 bg-white"></select>
+            </label>
+            <label class="text-sm">
+              <span class="block font-medium text-gray-700 mb-1">Getting off at</span>
+              <select id="fare-to" class="w-full border border-gray-300 rounded-md px-3 py-2 bg-white"></select>
+            </label>
+          </div>
+          <div id="fare-out" class="mt-4 grid grid-cols-3 gap-2 text-center"></div>
+          <p class="mt-3 text-xs text-gray-500">Estimate only: Rs. 30 minimum, then ~Rs. 8 per 1.6 km stage, rounded to Rs. 5.</p>
+        </div>
+        <section>
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="font-semibold">Live status</h2>
+            <a href="#" data-nav="report" class="text-sm bg-gray-900 text-white rounded-md px-3 py-1.5">Report this route</a>
+          </div>
+          <div id="rd-status" class="bg-white rounded-xl border border-gray-200 p-4 flex items-center gap-3 mb-3"></div>
+          <ul id="rd-reports" class="space-y-2"></ul>
+        </section>
+      </div>
+    </div>
+  </section>
+
+  <!-- REPORT -->
+  <section id="view-report" class="view">
+    <h1 class="text-2xl font-bold mb-1">Live reports</h1>
+    <p class="text-sm text-gray-600 mb-5">Riders share what they see right now. Reports fade from the route status after 2 hours.</p>
+    <form id="report-form" class="bg-white rounded-xl border border-gray-200 p-4 space-y-4">
+      <h2 class="font-semibold">Report a bus route now</h2>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Route *</label>
+        <select id="rf-route" class="w-full border border-gray-300 rounded-md px-3 py-2 bg-white"></select>
+        <p data-err="route_number" class="text-sm text-red-600 mt-1 hidden"></p>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Current status *</label>
+        <div id="rf-status" class="grid grid-cols-2 gap-2"></div>
+        <p data-err="status" class="text-sm text-red-600 mt-1 hidden"></p>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Bus plate (optional)</label>
+          <input id="rf-plate" placeholder="e.g. NC-3456" class="w-full border border-gray-300 rounded-md px-3 py-2" />
+          <p data-err="bus_reg" class="text-sm text-red-600 mt-1 hidden"></p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Your name (optional)</label>
+          <input id="rf-name" placeholder="e.g. Kasun" class="w-full border border-gray-300 rounded-md px-3 py-2" />
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Note (optional) — where is it now?</label>
+        <input id="rf-note" maxlength="140" placeholder="e.g. just left Maharagama, heavy traffic at Nugegoda" class="w-full border border-gray-300 rounded-md px-3 py-2" />
+        <div class="flex justify-between"><span></span><span id="rf-note-count" class="text-xs text-gray-400 ml-auto">0/140</span></div>
+      </div>
+      <button class="w-full bg-gray-900 text-white rounded-md py-2 font-medium">Submit report</button>
+      <p id="rf-done" class="text-sm text-green-700 hidden">Thanks! Your report is live.</p>
+    </form>
+
+    <div class="mt-6">
+      <h2 class="font-semibold mb-2">Recent reports</h2>
+      <div class="flex flex-wrap gap-2 mb-3">
+        <select id="feed-route" class="border border-gray-300 rounded-md px-3 py-1.5 bg-white text-sm"><option value="">All routes</option></select>
+        <div id="feed-status-chips" class="flex flex-wrap gap-2"></div>
+      </div>
+      <ul id="feed-list" class="space-y-2"></ul>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="view-about" class="view">
+    <article class="max-w-none space-y-4">
+      <h1 class="text-2xl font-bold">The problem</h1>
+      <p class="text-sm text-gray-700 leading-relaxed">Buses carry the majority of daily commuters in Sri Lanka, but there is no public real-time information system for them. Passengers standing at a halt cannot tell whether a route is running late, is already full, or has stopped for the day because of a breakdown, strike, weather, or a diverted road.</p>
+      <h2 class="text-lg font-semibold">Our solution</h2>
+      <p class="text-sm text-gray-700 leading-relaxed"><strong>Kohomada Bus?</strong> ("How's the bus?") is a lightweight, no-login web app: a route &amp; fare finder, and live crowd-sourced status reports.</p>
+      <h2 class="text-lg font-semibold">How the fare estimate works</h2>
+      <p class="text-sm text-gray-700 leading-relaxed">Distance between your two stops → minimum Rs. 30 for the first stage (~2.6 km) → + Rs. 8 per further 1.6 km stage → round to nearest Rs. 5. Guidance estimate only.</p>
+    </article>
+  </section>
+</main>
+
+<footer class="border-t border-gray-200 bg-white">
+  <div class="mx-auto max-w-3xl px-4 py-4 text-xs text-gray-500">SE3090 Mini Hackathon · Build for Sri Lanka · Fares are estimates for guidance only.</div>
+</footer>
+
+<script>
+// ---- data (from src/data/routes.json) ----
+const ROUTES = [
+  {number:"138",name:"Maharagama – Pettah",via:"High Level Road",highway:"B240",operator:"Private / SLTB",stops:[["Maharagama",0],["Pannipitiya Road Jn",1.6],["Navinna",2.8],["Nugegoda",4.5],["Kirulapone",6.2],["Thimbirigasyaya",7.9],["Town Hall",9.6],["Pettah",11.4]]},
+  {number:"120",name:"Piliyandala – Pettah",via:"Nugegoda, Kirulapone",highway:"B084",operator:"Private",stops:[["Piliyandala",0],["Bokundara",2.1],["Wataraka",3.4],["Delkanda",5.0],["Nugegoda",6.3],["Kirulapone",8.0],["Havelock Town",9.5],["Town Hall",11.2],["Pettah",13.0]]},
+  {number:"177",name:"Kaduwela – Pettah",via:"Rajagiriya, Borella",highway:"A004",operator:"SLTB / Private",stops:[["Kaduwela",0],["Koswatta",3.2],["Battaramulla",5.6],["Rajagiriya",8.1],["Welikada",9.4],["Borella",10.8],["Punchi Borella",11.9],["Maradana",13.2],["Pettah",14.6]]},
+  {number:"100",name:"Panadura – Colombo Fort",via:"Galle Road",highway:"A002",operator:"SLTB / Private",stops:[["Panadura",0],["Wadduwa",6.5],["Moratuwa",12.0],["Rawatawatta",13.8],["Mount Lavinia",16.5],["Dehiwala",18.7],["Wellawatte",21.4],["Bambalapitiya",23.6],["Kollupitiya",25.5],["Colombo Fort",27.8]]},
+  {number:"101",name:"Moratuwa – Pettah",via:"Galle Road, Kollupitiya",highway:"A002",operator:"Private",stops:[["Moratuwa",0],["Katubedda",1.9],["Ratmalana",3.7],["Mount Lavinia",5.2],["Dehiwala",7.4],["Wellawatte",10.1],["Bambalapitiya",12.3],["Kollupitiya",14.2],["Pettah",17.0]]},
+  {number:"154",name:"Kirulapone – Kadawatha",via:"Borella, Kelaniya",highway:"A001",operator:"SLTB",stops:[["Kirulapone",0],["Narahenpita",2.0],["Borella",3.6],["Maradana",5.1],["Ingurukade Jn",6.4],["Peliyagoda",8.2],["Kelaniya",10.0],["Kiribathgoda",12.3],["Kadawatha",15.1]]},
+  {number:"187",name:"Moratuwa – Kadawatha",via:"Piliyandala, Kottawa, Malabe",highway:"B084",operator:"Private",stops:[["Moratuwa",0],["Borupana",2.4],["Piliyandala",5.8],["Maharagama",9.6],["Kottawa",12.7],["Pannipitiya",14.5],["Malabe",18.9],["Kaduwela",22.3],["Biyagama",26.0],["Kadawatha",30.5]]},
+  {number:"1",name:"Colombo – Kandy",via:"Kadugannawa (A1)",highway:"A001",operator:"SLTB",stops:[["Colombo Pettah",0],["Kelaniya",10],["Kadawatha",15],["Nittambuwa",37],["Warakapola",61],["Kegalle",78],["Mawanella",90],["Kadugannawa",100],["Peradeniya",110],["Kandy",116]]},
+].map(r => ({...r, stops:r.stops.map(([name,km])=>({name,km}))}));
+
+// ---- logic (from src/lib/reports.ts) ----
+const STATUS_META = {
+  normal:{label:"Normal",dot:"#16a34a",text:"Running normally",rank:0},
+  crowded:{label:"Very crowded",dot:"#eab308",text:"Very crowded",rank:1},
+  delayed:{label:"Delayed",dot:"#f97316",text:"Delayed / slow",rank:2},
+  not_running:{label:"Not running",dot:"#dc2626",text:"Not running",rank:3},
+};
+const FRESH_MS = 2*60*60*1000;
+function liveStatus(reports, now=Date.now()){
+  const fresh = reports.filter(r=>now-r.created_at<=FRESH_MS);
+  if(!fresh.length) return {key:null,count:0};
+  const counts=new Map();
+  for(const r of fresh) counts.set(r.status,(counts.get(r.status)??0)+1);
+  let best="normal",bestN=-1;
+  for(const [k,n] of counts) if(n>bestN||(n===bestN&&STATUS_META[k].rank>STATUS_META[best].rank)){best=k;bestN=n;}
+  return {key:best,count:fresh.length};
+}
+function timeAgo(ms,now=Date.now()){
+  const s=Math.max(0,Math.round((now-ms)/1000));
+  if(s<60) return s+"s ago";
+  const m=Math.round(s/60); if(m<60) return m+" min ago";
+  const h=Math.round(m/60); if(h<24) return h+" h ago";
+  return Math.round(h/24)+" d ago";
+}
+// ---- logic (from src/lib/routes.ts) ----
+function estimateFare(km){
+  const d=Math.abs(km); let fare=30;
+  if(d>2.6) fare+=Math.ceil((d-2.6)/1.6)*8;
+  return Math.round(fare/5)*5;
+}
+function estimateMinutes(km,route){
+  const speed = route.number==="1" ? 45 : 19;
+  return Math.max(2,Math.round((Math.abs(km)/speed)*60));
+}
+
+// ---- mock reports (mirrors seed.sql, timed relative to now) ----
+const now = Date.now();
+let REPORTS = [
+  ["138","delayed","NC-3421","Stuck near Nugegoda junction, big traffic","Kasun",540],
+  ["138","delayed",null,"Two buses passed full without stopping at Kirulapone","Nimali",1500],
+  ["138","crowded","NB-9902","Packed but moving","Ruwan",3300],
+  ["120","normal",null,"On time at Delkanda",null,900],
+  ["120","normal","NA-1123","Just left Piliyandala","Dilani",2600],
+  ["177","not_running",null,"Nothing at Battaramulla for 30 min","Sanjaya",1200],
+  ["177","not_running","NC-7781","Driver said last trip cancelled",null,2400],
+  ["100","crowded",null,"Standing room only from Moratuwa","Ishara",800],
+  ["101","normal",null,"Regular service at Wellawatte","Tharindu",1700],
+  ["154","delayed","NC-2093","Slow near Borella, road work",null,1000],
+  ["187","crowded",null,"Full by Kottawa","Menaka",3000],
+  ["1","normal","ND-1201","Left Pettah on time, expressway clear","Roshan",2000],
+  ["1","delayed",null,"Held up at Kadugannawa",null,6000],
+  ["138","normal","NC-3421","Moving again past Town Hall","Kasun",120],
+].map((a,i)=>({id:"seed_"+i,route_number:a[0],status:a[1],bus_reg:a[2],note:a[3],reporter:a[4],flags:0,created_at:now-a[5]*1000}));
+
+// ---- rendering ----
+const NAV = [["home","Find Route"],["report","Live Reports"],["about","About"]];
+let currentRoute = null;
+
+function show(view){
+  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+  document.getElementById("view-"+view).classList.add("active");
+  document.querySelectorAll("#nav a").forEach(a=>{
+    const on = a.dataset.nav===view;
+    a.className = "px-3 py-1.5 rounded-md "+(on?"bg-gray-900 text-white":"text-gray-600 hover:bg-gray-100");
+  });
+  window.scrollTo(0,0);
+}
+document.getElementById("nav").innerHTML = NAV.map(([k,l])=>`<a href="#" data-nav="${k}" class="px-3 py-1.5 rounded-md text-gray-600 hover:bg-gray-100">${l}</a>`).join("");
+document.body.addEventListener("click",e=>{
+  const nav = e.target.closest("[data-nav]");
+  if(nav){ e.preventDefault(); show(nav.dataset.nav); }
+});
+
+// route select + datalist
+document.getElementById("route-select").innerHTML =
+  `<option value="">Choose a route…</option>` + ROUTES.map(r=>`<option value="${r.number}">${r.number} — ${r.name} (via ${r.via})</option>`).join("");
+document.getElementById("route-count").textContent = ROUTES.length;
+const allStops = [...new Set(ROUTES.flatMap(r=>r.stops.map(s=>s.name)))].sort();
+document.getElementById("stops").innerHTML = allStops.map(s=>`<option value="${s}">`).join("");
+document.getElementById("rf-route").innerHTML =
+  `<option value="">Choose a route…</option>` + ROUTES.map(r=>`<option value="${r.number}">${r.number} — ${r.name}</option>`).join("");
+document.getElementById("feed-route").innerHTML =
+  `<option value="">All routes</option>` + ROUTES.map(r=>`<option value="${r.number}">Route ${r.number}</option>`).join("");
+
+// search tabs
+document.querySelectorAll("[data-searchtab]").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    const m = btn.dataset.searchtab;
+    document.querySelectorAll("[data-searchtab]").forEach(b=>{
+      const on = b===btn;
+      b.className = "flex-1 py-2 text-sm font-medium rounded-md "+(on?"bg-gray-900 text-white":"bg-gray-100 text-gray-600");
+    });
+    document.getElementById("search-number").classList.toggle("hidden", m!=="number");
+    document.getElementById("search-stops").classList.toggle("hidden", m!=="stops");
+  });
+});
+document.getElementById("view-route-btn").addEventListener("click",()=>{
+  const n = document.getElementById("route-select").value;
+  if(n) openRoute(n);
+});
+function renderStopMatches(){
+  const f = document.getElementById("from-stop").value.trim().toLowerCase();
+  const t = document.getElementById("to-stop").value.trim().toLowerCase();
+  const ul = document.getElementById("stop-matches");
+  if(!f||!t){ ul.innerHTML=""; return; }
+  const matches = ROUTES.filter(r=>{
+    const fi=r.stops.findIndex(s=>s.name.toLowerCase().includes(f));
+    const ti=r.stops.findIndex(s=>s.name.toLowerCase().includes(t));
+    return fi!==-1&&ti!==-1&&fi!==ti;
+  });
+  ul.innerHTML = matches.length
+    ? matches.map(r=>`<li><a href="#" data-open="${r.number}" class="block border border-gray-200 rounded-lg p-3 hover:border-gray-400"><span class="font-semibold">${r.number}</span> — ${r.name}<span class="block text-xs text-gray-500">via ${r.via} · ${r.operator}</span></a></li>`).join("")
+    : `<li class="text-sm text-gray-500">No route in our sample data covers both stops.</li>`;
+}
+document.getElementById("from-stop").addEventListener("input",renderStopMatches);
+document.getElementById("to-stop").addEventListener("input",renderStopMatches);
+document.getElementById("stop-matches").addEventListener("click",e=>{
+  const a=e.target.closest("[data-open]"); if(a){ e.preventDefault(); openRoute(a.dataset.open); }
+});
+
+// route grid
+function renderGrid(){
+  const byRoute = {};
+  for(const r of REPORTS) (byRoute[r.route_number] ??= []).push(r);
+  document.getElementById("route-grid").innerHTML = ROUTES.map(r=>{
+    const live = liveStatus(byRoute[r.number] ?? []);
+    const meta = live.key ? STATUS_META[live.key] : null;
+    return `<li><a href="#" data-open="${r.number}" class="flex items-start gap-3 border border-gray-200 bg-white rounded-lg p-3 hover:border-gray-400">
+      <span class="mt-1 inline-block w-3 h-3 rounded-full shrink-0" style="background:${meta?meta.dot:'#d1d5db'}"></span>
+      <span class="min-w-0"><span class="font-semibold">${r.number}</span> — ${r.name}
+      <span class="block text-xs text-gray-500">${meta?`${meta.label} · ${live.count} report${live.count>1?'s':''}`:'No recent info'} · via ${r.via}</span></span></a></li>`;
+  }).join("");
+}
+document.getElementById("route-grid").addEventListener("click",e=>{
+  const a=e.target.closest("[data-open]"); if(a){ e.preventDefault(); openRoute(a.dataset.open); }
+});
+
+// route detail
+function openRoute(num){
+  const route = ROUTES.find(r=>r.number===num);
+  if(!route) return;
+  currentRoute = route;
+  document.getElementById("rd-title").innerHTML = `${route.number} <span class="font-normal text-gray-500">·</span> ${route.name}`;
+  document.getElementById("rd-sub").textContent = `via ${route.via} · ${route.highway} · ${route.operator}`;
+  document.getElementById("rd-stops").innerHTML = route.stops.map(s=>`<li class="ml-4 pb-4 last:pb-0"><span class="absolute -left-[7px] w-3 h-3 rounded-full bg-gray-900"></span><div class="text-sm font-medium">${s.name}</div><div class="text-xs text-gray-400">${s.km} km</div></li>`).join("");
+  const opts = route.stops.map(s=>`<option value="${s.name}">${s.name}</option>`).join("");
+  const ff=document.getElementById("fare-from"), ft=document.getElementById("fare-to");
+  ff.innerHTML=opts; ft.innerHTML=opts;
+  ff.selectedIndex=0; ft.selectedIndex=route.stops.length-1;
+  renderFare(); renderRouteReports();
+  show("route");
+}
+function renderFare(){
+  const route=currentRoute;
+  const a=route.stops.find(s=>s.name===document.getElementById("fare-from").value);
+  const b=route.stops.find(s=>s.name===document.getElementById("fare-to").value);
+  const out=document.getElementById("fare-out");
+  if(!a||!b||a.name===b.name){ out.innerHTML=`<p class="col-span-3 text-sm text-red-600">Choose two different stops.</p>`; return; }
+  const km=Math.abs(b.km-a.km);
+  const stat=(l,v)=>`<div class="bg-gray-50 rounded-lg py-3"><div class="text-lg font-bold">${v}</div><div class="text-xs text-gray-500">${l}</div></div>`;
+  out.innerHTML = stat("Distance",km.toFixed(1)+" km")+stat("Est. fare","Rs. "+estimateFare(km))+stat("Est. time",estimateMinutes(km,route)+" min");
+}
+document.getElementById("fare-from").addEventListener("change",renderFare);
+document.getElementById("fare-to").addEventListener("change",renderFare);
+
+function reportLi(r,showRoute){
+  const m=STATUS_META[r.status];
+  return `<li class="bg-white rounded-lg border border-gray-200 p-3">
+    <div class="flex items-center gap-2 text-sm">
+      <span class="inline-block w-2.5 h-2.5 rounded-full" style="background:${m.dot}"></span>
+      <span class="font-semibold">${m.label}</span>
+      ${showRoute?`<span class="text-gray-500">· Route ${r.route_number}</span>`:''}
+      ${r.bus_reg?`<span class="text-gray-500">· ${r.bus_reg}</span>`:''}
+      <span class="text-gray-400 ml-auto">${timeAgo(r.created_at)}</span>
+    </div>
+    ${r.note?`<p class="text-sm text-gray-700 mt-1">${r.note}</p>`:''}
+    ${r.reporter?`<p class="text-xs text-gray-400 mt-1">— ${r.reporter}</p>`:''}
+  </li>`;
+}
+function renderRouteReports(){
+  const rs = REPORTS.filter(r=>r.route_number===currentRoute.number).sort((a,b)=>b.created_at-a.created_at);
+  const live = liveStatus(rs);
+  const meta = live.key ? STATUS_META[live.key] : null;
+  document.getElementById("rd-status").innerHTML = `
+    <span class="inline-block w-3.5 h-3.5 rounded-full" style="background:${meta?meta.dot:'#9ca3af'}"></span>
+    <div><div class="font-semibold">${meta?meta.text:'No recent info'}</div>
+    <div class="text-xs text-gray-500">${live.count?`${live.count} report${live.count>1?'s':''} in the last 2 hours`:'Be the first to report this route'}</div></div>`;
+  document.getElementById("rd-reports").innerHTML = rs.length ? rs.map(r=>reportLi(r,false)).join("")
+    : `<li class="bg-white rounded-lg border border-dashed border-gray-300 p-6 text-center"><div class="text-2xl mb-1">🕓</div><p class="text-sm text-gray-600">No reports yet.</p></li>`;
+}
+
+// report form
+const STATUSES = Object.keys(STATUS_META);
+let rfStatus = "";
+document.getElementById("rf-status").innerHTML = STATUSES.map(s=>`<button type="button" data-st="${s}" class="flex items-center gap-2 border rounded-md px-3 py-2 text-sm border-gray-300"><span class="inline-block w-2.5 h-2.5 rounded-full" style="background:${STATUS_META[s].dot}"></span>${STATUS_META[s].label}</button>`).join("");
+document.getElementById("rf-status").addEventListener("click",e=>{
+  const b=e.target.closest("[data-st]"); if(!b) return;
+  rfStatus=b.dataset.st;
+  document.querySelectorAll("#rf-status button").forEach(x=>{
+    x.className = "flex items-center gap-2 border rounded-md px-3 py-2 text-sm "+(x===b?"border-gray-900 bg-gray-50":"border-gray-300");
+  });
+});
+document.getElementById("rf-note").addEventListener("input",e=>{
+  document.getElementById("rf-note-count").textContent = e.target.value.length+"/140";
+});
+function setErr(k,msg){
+  const el = document.querySelector(`[data-err="${k}"]`);
+  if(!el) return;
+  el.textContent = msg||"";
+  el.classList.toggle("hidden",!msg);
+}
+document.getElementById("report-form").addEventListener("submit",e=>{
+  e.preventDefault();
+  ["route_number","status","bus_reg"].forEach(k=>setErr(k,""));
+  const route=document.getElementById("rf-route").value.trim();
+  const plate=document.getElementById("rf-plate").value.trim().toUpperCase();
+  const note=document.getElementById("rf-note").value.trim();
+  let bad=false;
+  if(!route){ setErr("route_number","Please choose a bus route."); bad=true; }
+  if(!rfStatus){ setErr("status","Please choose the current status."); bad=true; }
+  if(plate && !/^[A-Z0-9]{1,4}[\s-]?[0-9]{1,4}$/.test(plate)){ setErr("bus_reg","That doesn't look like a plate (e.g. NC-3456). Leave blank if unsure."); bad=true; }
+  if(note.length>140){ setErr("note","Please keep the note under 140 characters."); bad=true; }
+  if(bad) return;
+  REPORTS.unshift({
+    id:"local_"+Date.now(), route_number:route, status:rfStatus,
+    bus_reg:plate||null, note:note||null,
+    reporter:document.getElementById("rf-name").value.trim()||null,
+    flags:0, created_at:Date.now(),
+  });
+  e.target.reset();
+  rfStatus=""; document.querySelectorAll("#rf-status button").forEach(x=>x.className="flex items-center gap-2 border rounded-md px-3 py-2 text-sm border-gray-300");
+  document.getElementById("rf-note-count").textContent="0/140";
+  const done=document.getElementById("rf-done"); done.classList.remove("hidden");
+  setTimeout(()=>done.classList.add("hidden"),2500);
+  renderFeed(); renderGrid();
+});
+
+// feed
+let feedStatuses = new Set();
+document.getElementById("feed-status-chips").innerHTML = STATUSES.map(s=>`<button type="button" data-fs="${s}" class="flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs border-gray-300 text-gray-600"><span class="inline-block w-2 h-2 rounded-full" style="background:${STATUS_META[s].dot}"></span>${STATUS_META[s].label}</button>`).join("");
+document.getElementById("feed-status-chips").addEventListener("click",e=>{
+  const b=e.target.closest("[data-fs]"); if(!b) return;
+  const s=b.dataset.fs;
+  feedStatuses.has(s)?feedStatuses.delete(s):feedStatuses.add(s);
+  b.className = "flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs "+(feedStatuses.has(s)?"border-gray-900 bg-gray-900 text-white":"border-gray-300 text-gray-600");
+  renderFeed();
+});
+document.getElementById("feed-route").addEventListener("change",renderFeed);
+function renderFeed(){
+  const rf=document.getElementById("feed-route").value;
+  let rs=[...REPORTS].sort((a,b)=>b.created_at-a.created_at);
+  if(rf) rs=rs.filter(r=>r.route_number===rf);
+  if(feedStatuses.size) rs=rs.filter(r=>feedStatuses.has(r.status));
+  document.getElementById("feed-list").innerHTML = rs.length ? rs.map(r=>reportLi(r,true)).join("")
+    : `<li class="bg-white rounded-lg border border-dashed border-gray-300 p-6 text-center"><div class="text-2xl mb-1">🕓</div><p class="text-sm text-gray-600">No reports match this filter.</p></li>`;
+}
+
+renderGrid(); renderFeed();
+</script>
+</body>
+</html>

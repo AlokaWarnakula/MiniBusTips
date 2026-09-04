@@ -1,0 +1,149 @@
+[
+  {
+    "number": "138",
+    "name": "Maharagama – Pettah",
+    "via": "High Level Road",
+    "highway": "B240",
+    "operator": "Private / SLTB",
+    "stops": [
+      { "name": "Maharagama", "km": 0 },
+      { "name": "Pannipitiya Road Jn", "km": 1.6 },
+      { "name": "Navinna", "km": 2.8 },
+      { "name": "Nugegoda", "km": 4.5 },
+      { "name": "Kirulapone", "km": 6.2 },
+      { "name": "Thimbirigasyaya", "km": 7.9 },
+      { "name": "Town Hall", "km": 9.6 },
+      { "name": "Pettah", "km": 11.4 }
+    ]
+  },
+  {
+    "number": "120",
+    "name": "Piliyandala – Pettah",
+    "via": "Nugegoda, Kirulapone",
+    "highway": "B084",
+    "operator": "Private",
+    "stops": [
+      { "name": "Piliyandala", "km": 0 },
+      { "name": "Bokundara", "km": 2.1 },
+      { "name": "Wataraka", "km": 3.4 },
+      { "name": "Delkanda", "km": 5.0 },
+      { "name": "Nugegoda", "km": 6.3 },
+      { "name": "Kirulapone", "km": 8.0 },
+      { "name": "Havelock Town", "km": 9.5 },
+      { "name": "Town Hall", "km": 11.2 },
+      { "name": "Pettah", "km": 13.0 }
+    ]
+  },
+  {
+    "number": "177",
+    "name": "Kaduwela – Pettah",
+    "via": "Rajagiriya, Borella",
+    "highway": "A004",
+    "operator": "SLTB / Private",
+    "stops": [
+      { "name": "Kaduwela", "km": 0 },
+      { "name": "Koswatta", "km": 3.2 },
+      { "name": "Battaramulla", "km": 5.6 },
+      { "name": "Rajagiriya", "km": 8.1 },
+      { "name": "Welikada", "km": 9.4 },
+      { "name": "Borella", "km": 10.8 },
+      { "name": "Punchi Borella", "km": 11.9 },
+      { "name": "Maradana", "km": 13.2 },
+      { "name": "Pettah", "km": 14.6 }
+    ]
+  },
+  {
+    "number": "100",
+    "name": "Panadura – Colombo Fort",
+    "via": "Galle Road",
+    "highway": "A002",
+    "operator": "SLTB / Private",
+    "stops": [
+      { "name": "Panadura", "km": 0 },
+      { "name": "Wadduwa", "km": 6.5 },
+      { "name": "Moratuwa", "km": 12.0 },
+      { "name": "Rawatawatta", "km": 13.8 },
+      { "name": "Mount Lavinia", "km": 16.5 },
+      { "name": "Dehiwala", "km": 18.7 },
+      { "name": "Wellawatte", "km": 21.4 },
+      { "name": "Bambalapitiya", "km": 23.6 },
+      { "name": "Kollupitiya", "km": 25.5 },
+      { "name": "Colombo Fort", "km": 27.8 }
+    ]
+  },
+  {
+    "number": "101",
+    "name": "Moratuwa – Pettah",
+    "via": "Galle Road, Kollupitiya",
+    "highway": "A002",
+    "operator": "Private",
+    "stops": [
+      { "name": "Moratuwa", "km": 0 },
+      { "name": "Katubedda", "km": 1.9 },
+      { "name": "Ratmalana", "km": 3.7 },
+      { "name": "Mount Lavinia", "km": 5.2 },
+      { "name": "Dehiwala", "km": 7.4 },
+      { "name": "Wellawatte", "km": 10.1 },
+      { "name": "Bambalapitiya", "km": 12.3 },
+      { "name": "Kollupitiya", "km": 14.2 },
+      { "name": "Pettah", "km": 17.0 }
+    ]
+  },
+  {
+    "number": "154",
+    "name": "Kirulapone – Kadawatha",
+    "via": "Borella, Kelaniya",
+    "highway": "A001",
+    "operator": "SLTB",
+    "stops": [
+      { "name": "Kirulapone", "km": 0 },
+      { "name": "Narahenpita", "km": 2.0 },
+      { "name": "Borella", "km": 3.6 },
+      { "name": "Maradana", "km": 5.1 },
+      { "name": "Ingurukade Jn", "km": 6.4 },
+      { "name": "Peliyagoda", "km": 8.2 },
+      { "name": "Kelaniya", "km": 10.0 },
+      { "name": "Kiribathgoda", "km": 12.3 },
+      { "name": "Kadawatha", "km": 15.1 }
+    ]
+  },
+  {
+    "number": "187",
+    "name": "Moratuwa – Kadawatha",
+    "via": "Piliyandala, Kottawa, Malabe",
+    "highway": "B084",
+    "operator": "Private",
+    "stops": [
+      { "name": "Moratuwa", "km": 0 },
+      { "name": "Borupana", "km": 2.4 },
+      { "name": "Piliyandala", "km": 5.8 },
+      { "name": "Maharagama", "km": 9.6 },
+      { "name": "Kottawa", "km": 12.7 },
+      { "name": "Pannipitiya", "km": 14.5 },
+      { "name": "Malabe", "km": 18.9 },
+      { "name": "Kaduwela", "km": 22.3 },
+      { "name": "Biyagama", "km": 26.0 },
+      { "name": "Kadawatha", "km": 30.5 }
+    ]
+  },
+  {
+    "number": "1",
+    "name": "Colombo – Kandy",
+    "via": "Kadugannawa (A1)",
+    "highway": "A001",
+    "operator": "SLTB",
+    "speedKmh": 45,
+    "stops": [
+      { "name": "Colombo Pettah", "km": 0 },
+      { "name": "Kelaniya", "km": 10 },
+      { "name": "Kadawatha", "km": 15 },
+      { "name": "Nittambuwa", "km": 37 },
+      { "name": "Warakapola", "km": 61 },
+      { "name": "Kegalle", "km": 78 },
+      { "name": "Mawanella", "km": 90 },
+      { "name": "Kadugannawa", "km": 100 },
+      { "name": "Peradeniya", "km": 110 },
+      { "name": "Kandy", "km": 116 }
+    ]
+  }
+]

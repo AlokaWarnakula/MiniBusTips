@@ -1,0 +1,64 @@
+{
+  "note": "What each agent reports it can be run as, weakest first. Refreshed weekly from whoever connects. Set \"source\": \"human\" at the top level to take ownership and stop DevTeam rewriting it.",
+  "agentAsserted": true,
+  "providers": {
+    "Anthropic Claude Code": {
+      "ladder": [
+        {
+          "model": "Sonnet 5",
+          "effort": "low"
+        },
+        {
+          "model": "Sonnet 5",
+          "effort": "medium"
+        },
+        {
+          "model": "Sonnet 5",
+          "effort": "high"
+        }
+      ],
+      "reportedBy": "Claude",
+      "reportedAt": "2026-09-04T06:37:58.342Z",
+      "source": "agent"
+    },
+    "OpenAI Codex": {
+      "ladder": [
+        {
+          "model": "GPT-5.4-mini",
+          "effort": "low"
+        },
+        {
+          "model": "GPT-5.4",
+          "effort": "medium"
+        },
+        {
+          "model": "GPT-5.5",
+          "effort": "medium"
+        },
+        {
+          "model": "GPT-5.6",
+          "effort": "medium"
+        },
+        {
+          "model": "GPT-5.6-luna",
+          "effort": "medium"
+        },
+        {
+          "model": "GPT-5.6-terra",
+          "effort": "medium"
+        },
+        {
+          "model": "GPT-5.6-sol",
+          "effort": "medium"
+        },
+        {
+          "model": "GPT-5.6-sol",
+          "effort": "ultra"
+        }
+      ],
+      "reportedBy": "Codex",
+      "reportedAt": "2026-09-04T06:38:07.362Z",
+      "source": "agent"
+    }
+  }
+}

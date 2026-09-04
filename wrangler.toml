@@ -1,0 +1,13 @@
+name = "minihack-bus"
+compatibility_date = "2025-04-01"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = "./dist"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "minihack-bus"
+database_id = "88b1ef00-0b26-4463-9f21-f588304a7428"
+
+[[kv_namespaces]]
+binding = "SESSION"
+id = "ad29b8a6e196411aa50f81df5002d95e"

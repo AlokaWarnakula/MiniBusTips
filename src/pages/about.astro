@@ -1,0 +1,54 @@
+---
+import Layout from "../layouts/Layout.astro";
+export const prerender = false;
+---
+
+<Layout title="About · Kohomada Bus?">
+  <article class="prose-sm max-w-none space-y-4">
+    <h1 class="text-2xl font-bold">The problem</h1>
+    <p class="text-sm text-gray-700 leading-relaxed">
+      Buses carry the majority of daily commuters in Sri Lanka, but there is no public
+      real-time information system for them. Passengers standing at a halt cannot tell
+      whether a route is running late, is already full, or has stopped for the day
+      because of a breakdown, strike, weather, or a diverted road. People miss work,
+      miss connections, and wait in the sun or rain with no information.
+    </p>
+
+    <h2 class="text-lg font-semibold">Our solution</h2>
+    <p class="text-sm text-gray-700 leading-relaxed">
+      <strong>Kohomada Bus?</strong> ("How's the bus?") is a lightweight, no-login web
+      app with two parts:
+    </p>
+    <ul class="text-sm text-gray-700 list-disc pl-5 space-y-1">
+      <li><strong>Route &amp; fare finder</strong> — search by route number or by start
+        and destination, see the full stop list, and estimate the fare and travel time
+        for your trip.</li>
+      <li><strong>Live status reports</strong> — any rider can report a route as normal,
+        crowded, delayed, or not running, optionally noting the bus plate and where the
+        bus is. The next passenger sees a live status dot for that route.</li>
+    </ul>
+
+    <h2 class="text-lg font-semibold">How the fare estimate works</h2>
+    <p class="text-sm text-gray-700 leading-relaxed">
+      Each stop has a distance from the route start. We take the distance between your
+      two stops, apply a minimum fare of Rs. 30 for the first stage (~2.6 km), add about
+      Rs. 8 for every further 1.6 km stage, and round to the nearest Rs. 5. This is a
+      guidance estimate, not an official fare.
+    </p>
+
+    <h2 class="text-lg font-semibold">Why crowd-sourced</h2>
+    <p class="text-sm text-gray-700 leading-relaxed">
+      Buses are not GPS-tracked, so there is no feed to read. But thousands of riders
+      are already on these routes. If even a few report what they see, everyone else
+      gets information that does not exist today. Multiple reports on one route
+      reinforce each other, so a single wrong entry does not mislead.
+    </p>
+
+    <h2 class="text-lg font-semibold">Sample data</h2>
+    <p class="text-sm text-gray-700 leading-relaxed">
+      The app ships with 8 real Colombo-area routes and their approximate stops and
+      distances, plus seeded example reports so the live feed is meaningful during a
+      demo.
+    </p>
+  </article>
+</Layout>
