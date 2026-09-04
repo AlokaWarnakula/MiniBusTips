@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   STATUS_META,
+  FRESH_MS,
   liveStatus,
   timeAgo,
   type Report,
@@ -29,6 +30,9 @@ export default function ReportList({
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
   const [flagged, setFlagged] = useState<Set<string>>(new Set());
+  const [updatedAt, setUpdatedAt] = useState<number | null>(null);
+  const [nonce, setNonce] = useState(0);
+  const [nowTick, setNowTick] = useState(Date.now());
 
   const active = route ?? (routeFilter || undefined);
 
@@ -43,6 +47,7 @@ export default function ReportList({
         if (!alive) return;
         setReports(data.reports ?? []);
         setFailed(false);
+        setUpdatedAt(Date.now());
       } catch {
         if (alive) setFailed(true);
       } finally {
@@ -55,9 +60,26 @@ export default function ReportList({
       alive = false;
       clearInterval(t);
     };
-  }, [active, refreshKey]);
+  }, [active, refreshKey, nonce]);
+
+  // keep the "updated Ns ago" label ticking
+  useEffect(() => {
+    const t = setInterval(() => setNowTick(Date.now()), 5000);
+    return () => clearInterval(t);
+  }, []);
 
   const live = route ? liveStatus(reports) : null;
+
+  // Feature: which specific buses were reported on this route recently.
+  const recentBuses = useMemo(() => {
+    if (!route) return [];
+    const cutoff = Date.now() - FRESH_MS;
+    const seen = new Set<string>();
+    for (const r of reports) {
+      if (r.created_at >= cutoff && r.bus_reg) seen.add(r.bus_reg);
+    }
+    return [...seen];
+  }, [reports, route]);
 
   const shown = useMemo(
     () =>
@@ -111,7 +133,18 @@ export default function ReportList({
         </div>
       )}
 
-      <div className="flex flex-wrap gap-2">
+      {route && recentBuses.length > 0 && (
+        <div className="flex flex-wrap items-center gap-1.5 text-xs text-gray-500">
+          <span className="font-medium text-gray-600">Buses reported recently:</span>
+          {recentBuses.map((b) => (
+            <span key={b} className="rounded-md bg-amber-100 px-1.5 py-0.5 font-semibold text-amber-900">
+              {b}
+            </span>
+          ))}
+        </div>
+      )}
+
+      <div className="flex flex-wrap items-center gap-2">
         {showRouteFilter && (
           <select
             value={routeFilter}
@@ -144,6 +177,19 @@ export default function ReportList({
             {STATUS_META[s].label}
           </button>
         ))}
+      </div>
+
+      <div className="flex items-center gap-2 text-xs text-gray-400">
+        <span>
+          {updatedAt ? `Updated ${timeAgo(updatedAt, nowTick)}` : "Loading…"}
+        </span>
+        <button
+          type="button"
+          onClick={() => setNonce((n) => n + 1)}
+          className="rounded-md border border-gray-300 px-2 py-0.5 text-gray-600 hover:bg-gray-50"
+        >
+          Refresh
+        </button>
       </div>
 
       {loading ? (

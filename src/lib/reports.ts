@@ -72,8 +72,11 @@ export function validateReport(input: {
   if (!status) errors.status = "Please choose the current status.";
   else if (!(status in STATUS_META)) errors.status = "Unknown status.";
 
-  if (busRaw && !/^[A-Z0-9]{1,4}[\s-]?[0-9]{1,4}$/.test(busRaw)) {
-    errors.bus_reg = "That doesn't look like a plate (e.g. NC-3456). Leave blank if unsure.";
+  // Accepts common Sri Lankan plates: "NC-3456", "KL 7788", "CAB-1234",
+  // and province-prefixed "WP NA-3456" / "WP CAB-1234". Optional 1-3 letter
+  // province prefix, a 1-3 letter series, then 2-4 digits.
+  if (busRaw && !/^([A-Z]{1,3}[\s-]?)?[A-Z]{1,3}[\s-]?[0-9]{2,4}$/.test(busRaw)) {
+    errors.bus_reg = "That doesn't look like a plate (e.g. NC-3456 or WP NA-3456). Leave blank if unsure.";
   }
   if (note.length > 140) errors.note = "Please keep the note under 140 characters.";
   if (reporter.length > 40) errors.reporter = "Name is too long.";
